@@ -30,6 +30,16 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# web app
+apps/web/dist/
+apps/web/node_modules/
+apps/web/.env.local
+
+# web app
+apps/web/dist/
+apps/web/node_modules/
+apps/web/.env.local
+
 # local env files
 .env
 .env*.local
