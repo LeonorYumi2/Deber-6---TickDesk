@@ -1,56 +1,88 @@
-# Welcome to your Expo app 👋
+# TickDesk
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+TickDesk es una aplicación móvil de gestión de tickets para soporte técnico. Esta primera
+etapa prepara el proyecto y presenta una pantalla visual de acceso; todavía no hay
+autenticación ni conexión con servicios externos.
 
-## Get started
+## Tecnologías
 
-1. Install dependencies
+- Expo SDK 57, React 19.2.3 y React Native 0.86.3.
+- TypeScript en modo estricto.
+- Expo Router para navegación basada en archivos.
+- Uniwind gratuito 1.13.2 y Tailwind CSS 4.3.4 para estilos.
+- `lottie-react-native` 7.3.8 para la ilustración animada local y
+  `@lottiefiles/dotlottie-react` como renderer web opcional.
+- npm para instalar y fijar dependencias.
 
-   ```bash
-   npm install
-   ```
+Las versiones instaladas pueden revisarse en `package.json` y `package-lock.json`. En el
+entorno donde se preparó esta etapa se comprobó Node.js 24.14.1 y npm 11.11.0.
 
-2. Start the app
+## Arquitectura
 
-   ```bash
-   npx expo start
-   ```
+Las rutas de Expo Router están separadas de las capas de funcionalidades. La ruta inicial
+en `src/app/index.tsx` solo delega a la página de acceso.
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+src/
+  app/                 Configuración de navegación y rutas Expo Router
+  pages/login/         Composición de la pantalla de acceso
+  widgets/              Bloques grandes de interfaz (ilustración de soporte)
+  features/auth/        Interfaz del formulario de acceso
+  entities/             Reservado para modelos reales del dominio
+  shared/               Recursos y componentes reutilizables
+    assets/animations/
+    ui/
+global.css              Tema de Uniwind y colores TickDesk
+metro.config.js         Integración de Uniwind con Metro
+docs/technical-decisions.md
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+La pantalla es solo una propuesta: los botones y enlaces todavía no realizan acciones
+de autenticación o navegación.
 
-### Other setup steps
+## Estilos y animación
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+`global.css` importa Tailwind CSS y Uniwind, y declara la paleta de marca como tokens.
+`metro.config.js` indica a Metro dónde está esa hoja y dónde generar los tipos de
+`className`. El diseño usa exclusivamente el tema claro.
 
-## Learn more
+La animación de soporte se guarda en `src/shared/assets/animations/support-desk.json` y
+se importa de forma local con `LottieView`; no depende de una URL ni de una API.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Comandos
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Instala dependencias y arranca el servidor de desarrollo:
 
-## Join the community
+```bash
+npm install
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+También se puede iniciar directamente para una plataforma:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start --android
+npx expo start --ios
+npx expo start --web
+```
+
+Verifica tipos y dependencias:
+
+```bash
+npx tsc --noEmit
+npm run lint
+npx expo install --check
+npx expo-doctor
+```
+
+## Qué comprobar
+
+1. Ejecuta `npx expo start` y abre la aplicación en un dispositivo o emulador.
+2. Revisa que aparezcan la marca TickDesk, los campos de correo y contraseña, las
+   acciones visuales y la ilustración animada.
+3. Escribe en ambos campos para comprobar su estado local; no se envían credenciales.
+4. Ejecuta los comandos de verificación anteriores. `npx expo export --platform web`
+   también permite comprobar que Metro puede generar el bundle web.
+
+Consulta [las decisiones técnicas](docs/technical-decisions.md) para más detalle sobre
+versiones, arquitectura y límites de esta primera etapa.

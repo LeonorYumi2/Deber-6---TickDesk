@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@theme {
+  --color-petrol: #244e65;
+  --color-steel: #5b91a5;
+  --color-sky: #b8dde3;
+  --color-canvas: #f3f6f5;
+  --color-coral: #f28c5b;
+}
