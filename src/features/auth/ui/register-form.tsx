@@ -3,9 +3,10 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import type { AuthError } from '@supabase/supabase-js';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { CheckCircle2, Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
+import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -122,13 +123,13 @@ export function RegisterForm() {
     return (
       <View className="rounded-2xl border border-sky bg-white p-6">
         <View className="mb-3 h-10 w-10 items-center justify-center rounded-xl bg-petrol/10">
-          <Text className="text-lg font-bold text-petrol">✓</Text>
+          <CheckCircle2 color={COLORS.PETROL} size={22} />
         </View>
         <Text className="text-lg font-bold text-petrol">Registro exitoso</Text>
         <Text className="mt-2 text-sm leading-6 text-steel">{successMessage}</Text>
         <Pressable
           accessibilityRole="button"
-          className="mt-6 h-12 items-center justify-center rounded-xl bg-petrol active:opacity-90"
+          className="mt-6 h-14 items-center justify-center rounded-2xl bg-petrol active:opacity-90"
           onPress={() => router.replace('/')}>
           <Text className="text-sm font-semibold text-white">Ir al inicio de sesión</Text>
         </Pressable>
@@ -184,9 +185,9 @@ export function RegisterForm() {
               hitSlop={8}
               onPress={() => setShowPassword((prev) => !prev)}>
               {showPassword ? (
-                <EyeOff color="#5B91A5" size={19} />
+                <EyeOff color={COLORS.STEEL} size={19} />
               ) : (
-                <Eye color="#5B91A5" size={19} />
+                <Eye color={COLORS.STEEL} size={19} />
               )}
             </Pressable>
           }
@@ -213,9 +214,9 @@ export function RegisterForm() {
               hitSlop={8}
               onPress={() => setShowConfirmPassword((prev) => !prev)}>
               {showConfirmPassword ? (
-                <EyeOff color="#5B91A5" size={19} />
+                <EyeOff color={COLORS.STEEL} size={19} />
               ) : (
-                <Eye color="#5B91A5" size={19} />
+                <Eye color={COLORS.STEEL} size={19} />
               )}
             </Pressable>
           }

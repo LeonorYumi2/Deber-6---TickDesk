@@ -1,9 +1,20 @@
-import LottieView from 'lottie-react-native';
+import { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 import supportAnimation from '@/shared/assets/animations/support-desk.json';
 
 export function SupportIllustration() {
+  const lottieRef = useRef<LottieView>(null);
+
+  useEffect(() => {
+    // Garantiza inicio de reproducción en Android ante diferencias de ciclo de vida nativo
+    const timer = setTimeout(() => {
+      lottieRef.current?.play();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <View
       accessible
@@ -11,6 +22,7 @@ export function SupportIllustration() {
       accessibilityRole="image"
       className="h-[184px] items-center justify-center overflow-hidden rounded-[28px] bg-sky/40">
       <LottieView
+        ref={lottieRef}
         autoPlay
         loop
         source={supportAnimation}

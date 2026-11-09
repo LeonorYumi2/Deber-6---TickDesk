@@ -5,6 +5,7 @@ import type { AuthError } from '@supabase/supabase-js';
 import { Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
+import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
 import { ForgotPasswordModal } from './forgot-password-modal';
 
@@ -29,7 +30,6 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successInfo, setSuccessInfo] = useState<string | null>(null);
   const [forgotModalVisible, setForgotModalVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -55,7 +55,6 @@ export function LoginForm() {
 
     setLoading(true);
     setErrorMessage(null);
-    setSuccessInfo(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email: trimmedEmail,
@@ -69,10 +68,8 @@ export function LoginForm() {
       return;
     }
 
-    // Sesión iniciada con éxito.
-    // La pantalla de dashboard aún no está creada en src/app, por lo que conservamos
-    // una navegación segura mostrando confirmación en vez de forzar una ruta inexistente.
-    setSuccessInfo('¡Inicio de sesión exitoso! (La pantalla de dashboard aún está en desarrollo).');
+    // Sesión iniciada con éxito -> Navegar al Dashboard señalando bienvenida inicial
+    router.replace({ pathname: '/dashboard', params: { welcome: '1' } });
   };
 
   return (
@@ -85,7 +82,6 @@ export function LoginForm() {
         onChangeText={(val) => {
           setEmail(val);
           if (errorMessage) setErrorMessage(null);
-          if (successInfo) setSuccessInfo(null);
         }}
         placeholder="tu@empresa.com"
         textContentType="emailAddress"
@@ -111,7 +107,6 @@ export function LoginForm() {
           onChangeText={(val) => {
             setPassword(val);
             if (errorMessage) setErrorMessage(null);
-            if (successInfo) setSuccessInfo(null);
           }}
           placeholder="Ingresa tu contraseña"
           rightElement={
@@ -121,9 +116,9 @@ export function LoginForm() {
               hitSlop={8}
               onPress={() => setShowPassword((prev) => !prev)}>
               {showPassword ? (
-                <EyeOff color="#5B91A5" size={19} />
+                <EyeOff color={COLORS.STEEL} size={19} />
               ) : (
-                <Eye color="#5B91A5" size={19} />
+                <Eye color={COLORS.STEEL} size={19} />
               )}
             </Pressable>
           }
@@ -136,12 +131,6 @@ export function LoginForm() {
       {errorMessage ? (
         <View className="mt-4 rounded-xl border border-coral/30 bg-coral/10 p-3">
           <Text className="text-xs font-medium text-coral">{errorMessage}</Text>
-        </View>
-      ) : null}
-
-      {successInfo ? (
-        <View className="mt-4 rounded-xl border border-sky bg-sky/20 p-3">
-          <Text className="text-xs font-medium text-petrol">{successInfo}</Text>
         </View>
       ) : null}
 

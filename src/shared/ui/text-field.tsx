@@ -1,6 +1,8 @@
 import { type ReactNode } from 'react';
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { COLORS } from '@/shared/theme';
+
 type TextFieldProps = {
   label?: string;
   value: string;
@@ -19,7 +21,7 @@ export function TextField({ label, rightElement, className, ...inputProps }: Tex
           className={`h-14 rounded-2xl border border-sky bg-white pl-4 ${
             rightElement ? 'pr-12' : 'pr-4'
           } text-[15px] text-petrol ${className || ''}`}
-          placeholderTextColor="#7B969F"
+          placeholderTextColor={COLORS.STEEL}
           {...inputProps}
         />
         {rightElement ? (

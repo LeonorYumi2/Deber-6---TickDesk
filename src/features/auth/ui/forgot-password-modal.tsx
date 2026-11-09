@@ -8,8 +8,10 @@ import {
   Text,
   View,
 } from 'react-native';
+import { CheckCircle2, X } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
+import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -94,11 +96,11 @@ export function ForgotPasswordModal({
           onPress={handleClose}
         />
 
-        <View className="w-full max-w-[420px] rounded-3xl border border-sky/40 bg-white p-6 shadow-2xl">
+        <View className="w-full max-w-[420px] rounded-3xl border border-sky/40 bg-white p-6 shadow-lg">
           {isSuccess ? (
             <View className="items-center py-2">
               <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl bg-petrol/10">
-                <Text className="text-2xl font-bold text-petrol">✓</Text>
+                <CheckCircle2 color={COLORS.PETROL} size={28} />
               </View>
 
               <Text className="text-[11px] font-bold tracking-[2px] text-steel">
@@ -117,7 +119,7 @@ export function ForgotPasswordModal({
 
               <Pressable
                 accessibilityRole="button"
-                className="mt-6 h-12 w-full items-center justify-center rounded-2xl bg-petrol active:opacity-90"
+                className="mt-6 h-14 w-full items-center justify-center rounded-2xl bg-petrol active:opacity-90"
                 onPress={handleClose}>
                 <Text className="text-sm font-semibold text-white">
                   Volver al inicio de sesión
@@ -128,7 +130,7 @@ export function ForgotPasswordModal({
             <View>
               <View className="mb-4 flex-row items-center justify-between">
                 <View>
-                  <Text className="text-[10px] font-bold tracking-[2px] text-steel">
+                  <Text className="text-[11px] font-semibold tracking-[2px] text-steel">
                     RECUPERACIÓN
                   </Text>
                   <Text className="text-xl font-bold text-petrol">
@@ -142,7 +144,7 @@ export function ForgotPasswordModal({
                   className="h-8 w-8 items-center justify-center rounded-full bg-canvas active:opacity-70"
                   hitSlop={8}
                   onPress={handleClose}>
-                  <Text className="text-sm font-bold text-steel">✕</Text>
+                  <X color={COLORS.STEEL} size={18} />
                 </Pressable>
               </View>
 
@@ -166,7 +168,7 @@ export function ForgotPasswordModal({
               />
 
               {errorMessage ? (
-                <View className="mt-3 rounded-xl border border-coral/30 bg-coral/10 p-3">
+                <View className="mt-4 rounded-xl border border-coral/30 bg-coral/10 p-3">
                   <Text className="text-xs font-medium text-coral">{errorMessage}</Text>
                 </View>
               ) : null}

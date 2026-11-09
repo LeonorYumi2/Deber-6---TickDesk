@@ -2,6 +2,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RegisterForm } from '@/features/auth';
+import { SupportIllustration } from '@/widgets/support-illustration/ui/support-illustration';
 
 export function RegisterPage() {
   return (
@@ -31,6 +32,8 @@ export function RegisterPage() {
               </Text>
             </View>
           </View>
+
+          <SupportIllustration />
 
           <View className="pb-6 pt-7">
             <Text className="mb-2 text-[11px] font-semibold tracking-[2px] text-steel">
