@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Card } from '@/shared/ui/card/card';
 import { Button } from '@/shared/ui/button/button';
 import { TextField } from '@/shared/ui/text-field/text-field';
@@ -11,6 +12,7 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleOpenApp = () => {
@@ -280,6 +282,25 @@ export function ResetPasswordForm() {
             setPassword(e.target.value);
             if (localError) setLocalError(null);
           }}
+          rightElement={
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#5B91A5',
+                outline: 'none',
+              }}>
+              {showPassword ? <EyeOff size={19} color="#5B91A5" /> : <Eye size={19} color="#5B91A5" />}
+            </button>
+          }
           disabled={loading}
           autoComplete="new-password"
           required
@@ -288,13 +309,32 @@ export function ResetPasswordForm() {
         <TextField
           id="confirm-password"
           label="Confirmar contraseña"
-          type={showPassword ? 'text' : 'password'}
+          type={showConfirmPassword ? 'text' : 'password'}
           placeholder="Repite la nueva contraseña"
           value={confirmPassword}
           onChange={(e) => {
             setConfirmPassword(e.target.value);
             if (localError) setLocalError(null);
           }}
+          rightElement={
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#5B91A5',
+                outline: 'none',
+              }}>
+              {showConfirmPassword ? <EyeOff size={19} color="#5B91A5" /> : <Eye size={19} color="#5B91A5" />}
+            </button>
+          }
           disabled={loading}
           autoComplete="new-password"
           required
@@ -304,32 +344,10 @@ export function ResetPasswordForm() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             marginBottom: '24px',
             marginTop: '-6px',
           }}>
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '13px',
-              color: 'var(--color-steel)',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}>
-            <input
-              type="checkbox"
-              checked={showPassword}
-              onChange={(e) => setShowPassword(e.target.checked)}
-              style={{
-                accentColor: 'var(--color-petrol)',
-                cursor: 'pointer',
-              }}
-            />
-            Mostrar contraseñas
-          </label>
-
           <span style={{ fontSize: '12px', color: 'var(--color-steel)' }}>
             Mínimo 8 caracteres
           </span>

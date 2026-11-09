@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import type { AuthError } from '@supabase/supabase-js';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
 import { TextField } from '@/shared/ui/text-field';
@@ -37,6 +38,8 @@ export function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async () => {
     if (loading) return;
@@ -79,7 +82,7 @@ export function RegisterForm() {
     setSuccessMessage(null);
 
     const webUrl = process.env.EXPO_PUBLIC_WEB_URL;
-    const emailRedirectTo = `${webUrl}/auth/confirm`;
+    const emailRedirectTo = webUrl ? `${webUrl}/auth/confirm` : Linking.createURL('/');
 
     const { data, error } = await supabase.auth.signUp({
       email: trimmedEmail,
@@ -174,7 +177,20 @@ export function RegisterForm() {
             if (errorMessage) setErrorMessage(null);
           }}
           placeholder="Mínimo 8 caracteres"
-          secureTextEntry
+          rightElement={
+            <Pressable
+              accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={() => setShowPassword((prev) => !prev)}>
+              {showPassword ? (
+                <EyeOff color="#5B91A5" size={19} />
+              ) : (
+                <Eye color="#5B91A5" size={19} />
+              )}
+            </Pressable>
+          }
+          secureTextEntry={!showPassword}
           textContentType="newPassword"
           value={password}
         />
@@ -190,7 +206,20 @@ export function RegisterForm() {
             if (errorMessage) setErrorMessage(null);
           }}
           placeholder="Repite tu contraseña"
-          secureTextEntry
+          rightElement={
+            <Pressable
+              accessibilityLabel={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={() => setShowConfirmPassword((prev) => !prev)}>
+              {showConfirmPassword ? (
+                <EyeOff color="#5B91A5" size={19} />
+              ) : (
+                <Eye color="#5B91A5" size={19} />
+              )}
+            </Pressable>
+          }
+          secureTextEntry={!showConfirmPassword}
           textContentType="newPassword"
           value={confirmPassword}
         />

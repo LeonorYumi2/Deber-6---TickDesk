@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { AuthError } from '@supabase/supabase-js';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
 import { TextField } from '@/shared/ui/text-field';
+import { ForgotPasswordModal } from './forgot-password-modal';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -28,6 +30,8 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
+  const [forgotModalVisible, setForgotModalVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (loading) return;
@@ -91,7 +95,15 @@ export function LoginForm() {
       <View className="mt-5">
         <View className="mb-2 flex-row items-center justify-between">
           <Text className="text-sm font-medium text-petrol">Contraseña</Text>
-          <Text className="text-xs font-semibold text-steel">¿La olvidaste?</Text>
+          <Pressable
+            accessibilityHint="Abre la ventana para restablecer tu contraseña."
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={() => setForgotModalVisible(true)}>
+            <Text className="text-xs font-semibold text-steel active:text-petrol">
+              ¿La olvidaste?
+            </Text>
+          </Pressable>
         </View>
         <TextField
           autoCapitalize="none"
@@ -102,7 +114,20 @@ export function LoginForm() {
             if (successInfo) setSuccessInfo(null);
           }}
           placeholder="Ingresa tu contraseña"
-          secureTextEntry
+          rightElement={
+            <Pressable
+              accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={() => setShowPassword((prev) => !prev)}>
+              {showPassword ? (
+                <EyeOff color="#5B91A5" size={19} />
+              ) : (
+                <Eye color="#5B91A5" size={19} />
+              )}
+            </Pressable>
+          }
+          secureTextEntry={!showPassword}
           textContentType="password"
           value={password}
         />
@@ -160,6 +185,14 @@ export function LoginForm() {
           <Text className="text-sm font-semibold text-petrol">Crear cuenta</Text>
         </Pressable>
       </View>
+
+      {forgotModalVisible ? (
+        <ForgotPasswordModal
+          initialEmail={email}
+          onClose={() => setForgotModalVisible(false)}
+          visible={forgotModalVisible}
+        />
+      ) : null}
     </View>
   );
 }
