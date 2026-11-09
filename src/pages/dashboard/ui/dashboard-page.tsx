@@ -3,11 +3,10 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, Clock, LogOut, Ticket } from 'lucide-react-native';
-import LottieView from 'lottie-react-native';
 
 import { useSession } from '@/entities/session';
 import { COLORS } from '@/shared/theme';
-import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
+import { WelcomeModal } from '@/widgets/welcome-modal';
 
 function getContextualGreeting(): string {
   const hour = new Date().getHours();
@@ -30,29 +29,17 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
   const welcomeParam = welcomeProp ?? routeParams.welcome;
 
-  // Estado para controlar la bienvenida
-  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(welcomeParam === '1');
-  const lottieRef = useRef<LottieView>(null);
+  // Estado para controlar la visibilidad del modal de bienvenida
+  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(welcomeParam === '1');
   const welcomeHandledRef = useRef(false);
 
   // Escuchar si useLocalSearchParams se hidrata después del primer render tick
   useEffect(() => {
     if (welcomeParam === '1' && !welcomeHandledRef.current) {
       welcomeHandledRef.current = true;
-      setShowWelcomeAnimation(true);
+      setIsWelcomeModalVisible(true);
     }
   }, [welcomeParam]);
-
-  // Reproducción imperativa en Android para asegurar que el renderizador nativo
-  // esté montado antes de iniciar la animación
-  useEffect(() => {
-    if (showWelcomeAnimation) {
-      const timer = setTimeout(() => {
-        lottieRef.current?.play();
-      }, 80);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcomeAnimation]);
 
   const greeting = getContextualGreeting();
 
@@ -107,22 +94,10 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
           {/* Tarjeta de bienvenida y perfil */}
           <View className="mt-2 rounded-3xl border border-sky/50 bg-white p-6 shadow-sm">
             <View className="flex-row items-center gap-4">
-              {/* Animación Lottie tras login reciente, o avatar con inicial si es sesión persistida */}
-              {showWelcomeAnimation ? (
-                <View className="h-16 w-16 items-center justify-center">
-                  <LottieView
-                    ref={lottieRef}
-                    autoPlay
-                    loop={false}
-                    source={welcomeBadgeAnimation}
-                    style={{ width: 64, height: 64 }}
-                  />
-                </View>
-              ) : (
-                <View className="h-14 w-14 items-center justify-center rounded-2xl bg-petrol/10">
-                  <Text className="text-2xl font-bold text-petrol">{userInitial}</Text>
-                </View>
-              )}
+              {/* Avatar e información habitual en el Dashboard */}
+              <View className="h-14 w-14 items-center justify-center rounded-2xl bg-petrol/10">
+                <Text className="text-2xl font-bold text-petrol">{userInitial}</Text>
+              </View>
 
               <View className="flex-1">
                 <Text className="text-[11px] font-bold tracking-[1.5px] text-steel">
@@ -206,6 +181,12 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
           </View>
         </View>
       </ScrollView>
+
+      {/* Ventana emergente (modal) de bienvenida animada con el técnico de soporte */}
+      <WelcomeModal
+        visible={isWelcomeModalVisible}
+        onClose={() => setIsWelcomeModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
