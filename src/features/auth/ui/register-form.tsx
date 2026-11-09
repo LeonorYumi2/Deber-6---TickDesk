@@ -78,7 +78,8 @@ export function RegisterForm() {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const emailRedirectTo = Linking.createURL('/');
+    const webUrl = process.env.EXPO_PUBLIC_WEB_URL;
+    const emailRedirectTo = `${webUrl}/auth/confirm`;
 
     const { data, error } = await supabase.auth.signUp({
       email: trimmedEmail,
