@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, Clock, LogOut, Ticket } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
+import { SignOutConfirmModal } from '@/features/auth';
 import { COLORS } from '@/shared/theme';
 import { WelcomeModal } from '@/widgets/welcome-modal';
 
@@ -24,8 +25,8 @@ type DashboardPageProps = {
 };
 
 export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {}) {
-  const { user, signOut } = useSession();
-  const [signingOut, setSigningOut] = useState(false);
+  const { user } = useSession();
+  const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
   const welcomeParam = welcomeProp ?? routeParams.welcome;
 
@@ -49,17 +50,6 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
       : user?.email || 'Usuario';
 
   const userInitial = displayName.charAt(0).toUpperCase();
-
-  const handleSignOut = async () => {
-    if (signingOut) return;
-    setSigningOut(true);
-    try {
-      await signOut();
-    } catch (err) {
-      console.error('Error al cerrar sesión:', err);
-      setSigningOut(false);
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" style={{ flex: 1 }}>
@@ -156,23 +146,14 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
             </Text>
           </View>
 
-          {/* Botón de cierre de sesión funcional */}
+          {/* Botón de cierre de sesión con confirmación */}
           <Pressable
-            accessibilityHint="Cierra tu sesión actual y regresa a la pantalla de ingreso."
+            accessibilityHint="Abre la ventana para confirmar el cierre de sesión."
             accessibilityRole="button"
-            className={`mt-8 h-14 flex-row items-center justify-center gap-3 rounded-2xl border border-coral/30 bg-white active:bg-coral/5 ${
-              signingOut ? 'opacity-70' : ''
-            }`}
-            disabled={signingOut}
-            onPress={handleSignOut}>
-            {signingOut ? (
-              <ActivityIndicator color={COLORS.CORAL} />
-            ) : (
-              <>
-                <LogOut color={COLORS.CORAL} size={18} />
-                <Text className="text-sm font-semibold text-coral">Cerrar sesión</Text>
-              </>
-            )}
+            className="mt-8 h-14 flex-row items-center justify-center gap-3 rounded-2xl border border-coral/30 bg-white active:bg-coral/5"
+            onPress={() => setIsSignOutModalVisible(true)}>
+            <LogOut color={COLORS.CORAL} size={18} />
+            <Text className="text-sm font-semibold text-coral">Cerrar sesión</Text>
           </Pressable>
 
           {/* Pie de página */}
@@ -181,6 +162,12 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal de confirmación antes de cerrar sesión */}
+      <SignOutConfirmModal
+        visible={isSignOutModalVisible}
+        onClose={() => setIsSignOutModalVisible(false)}
+      />
 
       {/* Ventana emergente (modal) de bienvenida animada con el técnico de soporte */}
       <WelcomeModal

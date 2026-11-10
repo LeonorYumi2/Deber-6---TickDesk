@@ -5,11 +5,14 @@ import type { AuthError } from '@supabase/supabase-js';
 import { Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
+import { useSession, type UserRole } from '@/entities/session';
 import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
 import { ForgotPasswordModal } from './forgot-password-modal';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type TargetRoute = `/${UserRole}` | '/dashboard';
 
 function getFriendlyErrorMessage(error: AuthError): string {
   const message = error.message.toLowerCase();
@@ -26,6 +29,7 @@ function getFriendlyErrorMessage(error: AuthError): string {
 }
 
 export function LoginForm() {
+  const { profile } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,8 +72,9 @@ export function LoginForm() {
       return;
     }
 
-    // Sesión iniciada con éxito -> Navegar al Dashboard señalando bienvenida inicial
-    router.replace({ pathname: '/dashboard', params: { welcome: '1' } });
+    // Sesión iniciada con éxito -> Dirigir al usuario a su panel correspondiente según su rol
+    const targetPath: TargetRoute = profile?.role ? `/${profile.role}` : '/dashboard';
+    router.replace({ pathname: targetPath, params: { welcome: '1' } });
   };
 
   return (
