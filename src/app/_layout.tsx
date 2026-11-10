@@ -11,7 +11,7 @@ import { COLORS } from '@/shared/theme';
 type RolePath = `/${UserRole}`;
 
 function RootNavigationLayout() {
-  const { session, profile, isLoading } = useSession();
+  const { session, profile, isLoading, pendingWelcome } = useSession();
   const segments = useSegments();
   const router = useRouter();
   const globalParams = useGlobalSearchParams<{ welcome?: string }>();
@@ -43,6 +43,11 @@ function RootNavigationLayout() {
     // 3. Con sesión y perfil válido: solo puede acceder al panel correspondiente a su rol.
     const targetPath: RolePath = `/${profile.role}`;
 
+    // Si el usuario está procesando el callback de Google OAuth, dejar que google-auth gestione la bienvenida
+    if (currentSegment === 'google-auth') {
+      return;
+    }
+
     // Verificación inicial de sesión persistida (arranque en frío).
     // Si ya existe sesión, redirigir al panel del rol de forma limpia (sin parámetros de bienvenida).
     if (!hasCheckedInitialSession.current) {
@@ -55,14 +60,14 @@ function RootNavigationLayout() {
 
     // Si el usuario se encuentra en login, registro, dashboard o en el panel de otro rol, redirigir a su panel.
     if (currentSegment !== profile.role) {
-      const welcome = globalParams.welcome;
-      if (welcome === '1') {
+      const shouldWelcome = globalParams.welcome === '1' || pendingWelcome;
+      if (shouldWelcome) {
         router.replace({ pathname: targetPath, params: { welcome: '1' } });
       } else {
         router.replace(targetPath);
       }
     }
-  }, [session, profile, isLoading, segments, globalParams.welcome, router]);
+  }, [session, profile, isLoading, pendingWelcome, segments, globalParams.welcome, router]);
 
   // Mientras isLoading sea true, mostrar la pantalla de carga sin redireccionar.
   if (isLoading) {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 
@@ -18,6 +18,9 @@ export type SessionContextValue = {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
+  pendingWelcome: boolean;
+  setPendingWelcome: (val: boolean) => void;
+  consumeWelcome: () => boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -27,6 +30,9 @@ const SessionContext = createContext<SessionContextValue>({
   user: null,
   profile: null,
   isLoading: true,
+  pendingWelcome: false,
+  setPendingWelcome: () => {},
+  consumeWelcome: () => false,
   signOut: async () => {},
   refreshProfile: async () => {},
 });
@@ -35,6 +41,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingWelcome, setPendingWelcome] = useState(false);
+
+  const consumeWelcome = useCallback(() => {
+    setPendingWelcome(false);
+    return true;
+  }, []);
 
   const processedCodes = useRef<Set<string>>(new Set());
   const resolvedUserIdRef = useRef<string | null>(null);
@@ -187,6 +199,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           if (error) {
             console.error('Error al intercambiar código por sesión:', error.message);
           } else if (data.session) {
+            setPendingWelcome(true);
             syncSessionAndProfile(data.session);
           }
           return;
@@ -207,6 +220,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
               if (error) {
                 console.error('Error al establecer sesión desde hash tokens:', error.message);
               } else if (data.session) {
+                setPendingWelcome(true);
                 syncSessionAndProfile(data.session);
               }
             }
@@ -235,6 +249,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    setPendingWelcome(false);
     inFlightQueryRef.current = null;
     resolvedUserIdRef.current = null;
     querySeqRef.current += 1;
@@ -255,6 +270,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         profile,
         isLoading,
+        pendingWelcome,
+        setPendingWelcome,
+        consumeWelcome,
         signOut,
         refreshProfile,
       }}>

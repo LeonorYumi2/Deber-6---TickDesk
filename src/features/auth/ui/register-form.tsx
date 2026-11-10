@@ -235,8 +235,8 @@ export function RegisterForm() {
       <Pressable
         accessibilityHint="Crea una cuenta nueva con los datos ingresados."
         accessibilityRole="button"
-        className={`mt-7 h-14 items-center justify-center rounded-2xl bg-coral ${
-          loading ? 'opacity-70' : 'active:opacity-90'
+        className={`mt-6 h-14 items-center justify-center rounded-2xl bg-petrol ${
+          loading ? 'opacity-70' : 'active:bg-petrol/90'
         }`}
         disabled={loading}
         onPress={handleRegister}>

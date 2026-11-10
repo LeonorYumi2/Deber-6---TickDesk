@@ -8,10 +8,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import { CheckCircle2, X } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
+import LottieView from 'lottie-react-native';
 
+import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { AppLogo } from '@/shared/ui/app-logo';
 import { TextField } from '@/shared/ui/text-field';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -99,8 +102,13 @@ export function ForgotPasswordModal({
         <View className="w-full max-w-[420px] rounded-3xl border border-sky/40 bg-white p-6 shadow-lg">
           {isSuccess ? (
             <View className="items-center py-2">
-              <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl bg-petrol/10">
-                <CheckCircle2 color={COLORS.PETROL} size={28} />
+              <View className="mb-2 h-20 w-20 items-center justify-center">
+                <LottieView
+                  autoPlay
+                  loop
+                  source={welcomeBadgeAnimation}
+                  style={{ width: 80, height: 80 }}
+                />
               </View>
 
               <Text className="text-[11px] font-bold tracking-[2px] text-steel">
@@ -129,14 +137,7 @@ export function ForgotPasswordModal({
           ) : (
             <View>
               <View className="mb-4 flex-row items-center justify-between">
-                <View>
-                  <Text className="text-[11px] font-semibold tracking-[2px] text-steel">
-                    RECUPERACIÓN
-                  </Text>
-                  <Text className="text-xl font-bold text-petrol">
-                    Restablecer contraseña
-                  </Text>
-                </View>
+                <AppLogo size="sm" />
 
                 <Pressable
                   accessibilityLabel="Cerrar"
@@ -146,6 +147,15 @@ export function ForgotPasswordModal({
                   onPress={handleClose}>
                   <X color={COLORS.STEEL} size={18} />
                 </Pressable>
+              </View>
+
+              <View className="mb-3">
+                <Text className="text-[11px] font-semibold tracking-[2px] text-steel">
+                  RECUPERACIÓN
+                </Text>
+                <Text className="text-xl font-bold text-petrol">
+                  Restablecer contraseña
+                </Text>
               </View>
 
               <Text className="mb-5 text-sm leading-5 text-steel">
@@ -176,8 +186,8 @@ export function ForgotPasswordModal({
               <Pressable
                 accessibilityHint="Envía el correo de recuperación a tu dirección."
                 accessibilityRole="button"
-                className={`mt-6 h-14 items-center justify-center rounded-2xl bg-coral ${
-                  loading ? 'opacity-70' : 'active:opacity-90'
+                className={`mt-6 h-14 items-center justify-center rounded-2xl bg-petrol ${
+                  loading ? 'opacity-70' : 'active:bg-petrol/90'
                 }`}
                 disabled={loading}
                 onPress={handleResetPassword}>

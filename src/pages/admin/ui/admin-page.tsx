@@ -5,15 +5,12 @@ import {
   RefreshControl,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import {
   Headphones,
-  KeyRound,
-  LogOut,
   Search,
   Shield,
   Ticket as TicketIcon,
@@ -23,10 +20,11 @@ import {
 
 import { useSession, type Profile, type UserRole } from '@/entities/session';
 import { ChangeRoleModal } from '@/features/admin-change-role';
-import { SignOutConfirmModal } from '@/features/auth';
-import { ChangePasswordModal } from '@/features/change-password';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { AppLogo } from '@/shared/ui/app-logo';
+import { TextField } from '@/shared/ui/text-field';
+import { AppMenu, AppMenuButton } from '@/widgets/app-menu';
 import { WelcomeModal } from '@/widgets/welcome-modal';
 
 function getContextualGreeting(): string {
@@ -45,7 +43,7 @@ type AdminPageProps = {
 };
 
 export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
-  const { user, profile } = useSession();
+  const { user, profile, pendingWelcome, consumeWelcome } = useSession();
 
   const [usersList, setUsersList] = useState<Profile[]>([]);
   const [totalTicketsCount, setTotalTicketsCount] = useState<number>(0);
@@ -55,21 +53,22 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
 
   const [selectedUserForRole, setSelectedUserForRole] = useState<Profile | null>(null);
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
-  const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
-  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
-  const welcomeParam = welcomeProp ?? routeParams.welcome;
+  const isFromPropOrRoute = (welcomeProp ?? routeParams.welcome) === '1';
 
-  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(welcomeParam === '1');
+  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(false);
   const welcomeHandledRef = useRef(false);
 
   useEffect(() => {
-    if (welcomeParam === '1' && !welcomeHandledRef.current) {
+    const shouldShow = pendingWelcome || isFromPropOrRoute;
+    if (shouldShow && !welcomeHandledRef.current) {
       welcomeHandledRef.current = true;
+      consumeWelcome();
       setIsWelcomeModalVisible(true);
     }
-  }, [welcomeParam]);
+  }, [pendingWelcome, isFromPropOrRoute, consumeWelcome]);
 
   const loadData = useCallback(async () => {
     try {
@@ -203,24 +202,18 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
         <View className="mx-auto w-full max-w-[440px] flex-1 px-6 pb-8">
           {/* Barra superior */}
           <View className="flex-row items-center justify-between pb-6 pt-3">
-            <View className="flex-row items-center gap-3">
-              <View className="h-11 w-11 items-center justify-center rounded-2xl bg-petrol">
-                <Text className="text-lg font-bold text-white">T</Text>
-              </View>
-              <View>
-                <Text className="text-lg font-bold tracking-tight text-petrol">TickDesk</Text>
-                <Text className="text-[10px] font-semibold tracking-[2px] text-steel">
-                  SUPPORT SYSTEM
+            <AppLogo />
+
+            {/* Píldora de rol y Menú */}
+            <View className="flex-row items-center gap-2.5">
+              <View className="flex-row items-center gap-2 rounded-full border border-sky/60 bg-white px-3 py-1.5">
+                <View className="h-2 w-2 rounded-full bg-steel" />
+                <Text className="text-[10px] font-semibold tracking-[1.2px] text-steel">
+                  ADMINISTRADOR
                 </Text>
               </View>
-            </View>
 
-            {/* Píldora de rol */}
-            <View className="flex-row items-center gap-2 rounded-full border border-sky/60 bg-white px-3 py-1.5">
-              <View className="h-2 w-2 rounded-full bg-steel" />
-              <Text className="text-[10px] font-semibold tracking-[1.2px] text-steel">
-                ADMINISTRADOR
-              </Text>
+              <AppMenuButton onPress={() => setIsMenuVisible(true)} />
             </View>
           </View>
 
@@ -242,28 +235,6 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
                   {user?.email}
                 </Text>
               </View>
-            </View>
-
-            <View className="mt-4 flex-row items-center justify-between rounded-xl border border-sky/30 bg-canvas px-3.5 py-2">
-              <View>
-                <Text className="text-[10px] font-bold uppercase tracking-wider text-steel">
-                  Área de trabajo
-                </Text>
-                <Text className="mt-0.5 text-sm font-semibold text-petrol">
-                  Panel de administración del sistema
-                </Text>
-              </View>
-
-              <Pressable
-                accessibilityHint="Abre el modal para cambiar tu contraseña."
-                accessibilityRole="button"
-                className="flex-row items-center gap-1.5 rounded-lg border border-sky/50 bg-white px-2.5 py-1.5 active:bg-canvas"
-                onPress={() => setIsPasswordModalVisible(true)}>
-                <KeyRound color={COLORS.PETROL} size={13} />
-                <Text className="text-[11px] font-semibold text-petrol">
-                  Contraseña
-                </Text>
-              </Pressable>
             </View>
           </View>
 
@@ -312,15 +283,14 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
               {loading ? <ActivityIndicator color={COLORS.PETROL} size="small" /> : null}
             </View>
 
-            {/* Barra de búsqueda rápida */}
-            <View className="mb-3 flex-row items-center rounded-2xl border border-sky/40 bg-white px-3.5 py-2.5">
-              <Search color={COLORS.STEEL} size={16} />
-              <TextInput
-                className="ml-2 flex-1 text-xs text-petrol"
+            {/* Barra de búsqueda rápida estandarizada con TextField */}
+            <View className="mb-3">
+              <TextField
+                leftElement={<Search color={COLORS.STEEL} size={16} />}
                 onChangeText={setSearchQuery}
                 placeholder="Buscar por nombre, correo o rol..."
-                placeholderTextColor={COLORS.STEEL}
                 value={searchQuery}
+                variant="compact"
               />
             </View>
 
@@ -330,9 +300,11 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
                 <Text className="mt-3 text-xs text-steel">Cargando directorio de usuarios...</Text>
               </View>
             ) : filteredUsers.length === 0 ? (
-              <View className="rounded-2xl border border-sky/30 bg-white p-6 items-center">
-                <Text className="text-xs text-steel">
-                  No se encontraron usuarios que coincidan con la búsqueda.
+              <View className="rounded-2xl border border-sky/40 bg-white p-6 items-center shadow-sm">
+                <Search color={COLORS.STEEL} size={22} />
+                <Text className="mt-2 text-xs font-bold text-petrol">Sin resultados</Text>
+                <Text className="mt-0.5 text-center text-[11px] text-steel">
+                  No se encontraron usuarios que coincidan con «{searchQuery}».
                 </Text>
               </View>
             ) : (
@@ -358,11 +330,11 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
                   return (
                     <View
                       key={u.id}
-                      className="rounded-2xl border border-sky/40 bg-white p-4 shadow-sm">
+                      className="rounded-2xl border border-sky/40 bg-white p-3.5 shadow-sm">
                       <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center gap-3 flex-1 mr-2">
-                          <View className="h-10 w-10 items-center justify-center rounded-xl bg-petrol/10">
-                            <Text className="text-base font-bold text-petrol">{initial}</Text>
+                          <View className="h-9 w-9 items-center justify-center rounded-xl bg-petrol/10">
+                            <Text className="text-sm font-bold text-petrol">{initial}</Text>
                           </View>
 
                           <View className="flex-1">
@@ -385,7 +357,7 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
                         </View>
 
                         {/* Píldora de rol actual */}
-                        <View className={`rounded-full px-2.5 py-1 ${roleBadgeBg}`}>
+                        <View className={`rounded-full px-2.5 py-0.5 ${roleBadgeBg}`}>
                           <Text className="text-[9px] font-bold tracking-wider">
                             {roleLabel}
                           </Text>
@@ -393,56 +365,27 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
                       </View>
 
                       {/* Botón de acción para cambiar rol */}
-                      <View className="mt-3 border-t border-sky/20 pt-2.5 flex-row justify-end items-center">
-                        {isCurrentUser ? (
-                          <Text className="text-[11px] text-steel italic">
-                            Tu cuenta principal de administrador
-                          </Text>
-                        ) : isAdmin ? (
-                          <Text className="text-[11px] text-steel italic">
-                            Cuenta de administrador protegida
-                          </Text>
-                        ) : (
+                      {!isCurrentUser && !isAdmin ? (
+                        <View className="mt-2.5 border-t border-sky/15 pt-2 flex-row justify-end items-center">
                           <Pressable
                             accessibilityRole="button"
-                            className="h-8 px-3.5 flex-row items-center justify-center gap-1.5 rounded-xl border border-petrol/30 bg-petrol/5 active:bg-petrol/15"
+                            className="h-7 px-3 flex-row items-center justify-center gap-1.5 rounded-lg border border-petrol/30 bg-petrol/5 active:bg-petrol/15"
                             onPress={() => {
                               setSelectedUserForRole(u);
                               setIsRoleModalVisible(true);
                             }}>
-                            <Shield color={COLORS.PETROL} size={12} />
-                            <Text className="text-xs font-semibold text-petrol">
+                            <Shield color={COLORS.PETROL} size={11} />
+                            <Text className="text-[11px] font-semibold text-petrol">
                               Cambiar a {isSupport ? 'Solicitante' : 'Soporte'}
                             </Text>
                           </Pressable>
-                        )}
-                      </View>
+                        </View>
+                      ) : null}
                     </View>
                   );
                 })}
               </View>
             )}
-          </View>
-
-          {/* Botones de gestión de cuenta */}
-          <View className="mt-8 gap-2.5">
-            <Pressable
-              accessibilityHint="Abre la ventana para cambiar tu contraseña."
-              accessibilityRole="button"
-              className="h-12 flex-row items-center justify-center gap-2 rounded-2xl border border-sky/50 bg-white active:bg-canvas"
-              onPress={() => setIsPasswordModalVisible(true)}>
-              <KeyRound color={COLORS.PETROL} size={16} />
-              <Text className="text-xs font-semibold text-petrol">Cambiar contraseña</Text>
-            </Pressable>
-
-            <Pressable
-              accessibilityHint="Cierra tu sesión actual y regresa a la pantalla de ingreso."
-              accessibilityRole="button"
-              className="h-12 flex-row items-center justify-center gap-2 rounded-2xl border border-coral/30 bg-white active:bg-coral/5"
-              onPress={() => setIsSignOutModalVisible(true)}>
-              <LogOut color={COLORS.CORAL} size={16} />
-              <Text className="text-xs font-semibold text-coral">Cerrar sesión</Text>
-            </Pressable>
           </View>
 
           {/* Pie de página */}
@@ -467,16 +410,10 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
         }}
       />
 
-      {/* Modal para cambiar contraseña */}
-      <ChangePasswordModal
-        visible={isPasswordModalVisible}
-        onClose={() => setIsPasswordModalVisible(false)}
-      />
-
-      {/* Modal de confirmación antes de cerrar sesión */}
-      <SignOutConfirmModal
-        visible={isSignOutModalVisible}
-        onClose={() => setIsSignOutModalVisible(false)}
+      {/* Menú lateral hamburguesa reutilizable */}
+      <AppMenu
+        visible={isMenuVisible}
+        onClose={() => setIsMenuVisible(false)}
       />
 
       {/* Ventana emergente (modal) de bienvenida animada con el técnico de soporte */}

@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { Calendar, ChevronRight } from 'lucide-react-native';
+import { Calendar, ChevronRight, Clock, UserCheck } from 'lucide-react-native';
 
 import { COLORS } from '@/shared/theme';
 import type { Ticket } from '../model/types';
@@ -57,6 +57,25 @@ export function TicketCard({ ticket, onPress }: TicketCardProps) {
         <Text className="mt-1 text-xs leading-4 text-steel" numberOfLines={2}>
           {ticket.description}
         </Text>
+      </View>
+
+      {/* Indicador de asignación */}
+      <View className="mt-2.5 flex-row items-center">
+        {ticket.assigned_to ? (
+          <View className="flex-row items-center gap-1 rounded-md bg-petrol/5 border border-petrol/20 px-2 py-0.5">
+            <UserCheck color={COLORS.PETROL} size={11} />
+            <Text className="text-[10px] font-medium text-petrol" numberOfLines={1}>
+              Asignado: {ticket.assigned_profile?.full_name || 'Técnico de soporte'}
+            </Text>
+          </View>
+        ) : (
+          <View className="flex-row items-center gap-1 rounded-md bg-canvas border border-sky/40 px-2 py-0.5">
+            <Clock color={COLORS.STEEL} size={11} />
+            <Text className="text-[10px] font-medium text-steel">
+              Pendiente de asignación
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Fila inferior: fecha y chevron */}

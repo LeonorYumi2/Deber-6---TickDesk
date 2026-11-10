@@ -10,10 +10,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { CheckCircle2, Ticket as TicketIcon, X } from 'lucide-react-native';
+import LottieView from 'lottie-react-native';
+import { Ticket as TicketIcon, X } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
 import type { CreateTicketDTO, Ticket, TicketPriority } from '@/entities/ticket';
+import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
@@ -190,10 +192,15 @@ export function CreateTicketModal({
           </View>
 
           {isSuccess ? (
-            /* Pantalla de confirmación exitosa */
+            /* Pantalla de confirmación exitosa con Lottie */
             <View className="items-center py-4">
-              <View className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-petrol/10">
-                <CheckCircle2 color={COLORS.PETROL} size={36} />
+              <View className="mb-2 h-24 w-24 items-center justify-center">
+                <LottieView
+                  autoPlay
+                  loop
+                  source={welcomeBadgeAnimation}
+                  style={{ width: 90, height: 90 }}
+                />
               </View>
 
               <Text className="text-center text-xl font-bold tracking-tight text-petrol">
@@ -350,11 +357,16 @@ export function CreateTicketModal({
                   </View>
                 </View>
 
-                {/* Descripción del problema */}
+                {/* Descripción del problema con contador en tiempo real */}
                 <View>
-                  <Text className="mb-2 text-sm font-medium text-petrol">
-                    Descripción del problema *
-                  </Text>
+                  <View className="mb-2 flex-row items-center justify-between">
+                    <Text className="text-sm font-medium text-petrol">
+                      Descripción del problema *
+                    </Text>
+                    <Text className="text-[11px] font-medium text-steel">
+                      {description.length} caracteres (mín. 10)
+                    </Text>
+                  </View>
                   <TextInput
                     className="min-h-[105px] rounded-2xl border border-sky bg-white p-4 text-[15px] text-petrol"
                     editable={!loading}

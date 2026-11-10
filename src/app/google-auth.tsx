@@ -17,18 +17,22 @@ export default function GoogleAuthCallbackScreen() {
     error_description?: string;
   }>();
 
-  const { session, profile, isLoading } = useSession();
+  const { session, profile, isLoading, setPendingWelcome } = useSession();
   const initialError =
     params.error_description || params.error || null;
   const [errorMessage, setErrorMessage] = useState<string | null>(initialError);
   const attemptedCodeRef = useRef<string | null>(null);
 
-  // 1. Si la sesión y el perfil ya están resueltos, redirigir al panel correspondiente
+  // 1. Si la sesión y el perfil ya están resueltos, redirigir al panel correspondiente con bienvenida
   useEffect(() => {
     if (session && profile && !isLoading) {
-      router.replace(`/${profile.role}`);
+      setPendingWelcome(true);
+      router.replace({
+        pathname: `/${profile.role}`,
+        params: { welcome: '1' },
+      });
     }
-  }, [session, profile, isLoading, router]);
+  }, [session, profile, isLoading, router, setPendingWelcome]);
 
   // 2. Procesar el callback de autenticación (código PKCE o tokens)
   useEffect(() => {

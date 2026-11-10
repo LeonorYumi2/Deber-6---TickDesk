@@ -9,6 +9,7 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { supabase } from '@/shared/lib/supabase';
 import { useSession, type UserRole } from '@/entities/session';
 import { COLORS } from '@/shared/theme';
+import { GoogleIcon } from '@/shared/ui/google-icon';
 import { TextField } from '@/shared/ui/text-field';
 import { ForgotPasswordModal } from './forgot-password-modal';
 
@@ -31,7 +32,7 @@ function getFriendlyErrorMessage(error: AuthError): string {
 }
 
 export function LoginForm() {
-  const { profile } = useSession();
+  const { profile, setPendingWelcome } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,7 +76,8 @@ export function LoginForm() {
       return;
     }
 
-    // Sesión iniciada con éxito -> Dirigir al usuario a su panel correspondiente según su rol
+    // Sesión iniciada con éxito -> Activar bienvenida y dirigir al usuario a su panel correspondiente
+    setPendingWelcome(true);
     const targetRoute: TargetRoute = profile?.role ? `/${profile.role}` : '/dashboard';
     router.replace({ pathname: targetRoute, params: { welcome: '1' } });
   };
@@ -134,7 +136,9 @@ export function LoginForm() {
           ) {
             console.error('Error al intercambiar código:', exchangeError.message);
             setErrorMessage(exchangeError.message || 'Error al autenticar con Google.');
+            return;
           }
+          setPendingWelcome(true);
         } else if (res.url.includes('access_token')) {
           const hashOrQuery = res.url.includes('#') ? res.url.split('#')[1] : res.url.split('?')[1];
           if (hashOrQuery) {
@@ -149,7 +153,9 @@ export function LoginForm() {
               if (sessionError) {
                 console.error('Error al establecer sesión:', sessionError.message);
                 setErrorMessage(sessionError.message || 'Error al establecer sesión con Google.');
+                return;
               }
+              setPendingWelcome(true);
             }
           }
         }
@@ -230,8 +236,8 @@ export function LoginForm() {
       <Pressable
         accessibilityHint="Inicia sesión con tus credenciales tradicionales."
         accessibilityRole="button"
-        className={`mt-7 h-14 items-center justify-center rounded-2xl bg-coral ${
-          loading || googleLoading ? 'opacity-70' : 'active:opacity-90'
+        className={`mt-7 h-14 items-center justify-center rounded-2xl bg-petrol ${
+          loading || googleLoading ? 'opacity-70' : 'active:bg-petrol/90'
         }`}
         disabled={loading || googleLoading}
         onPress={handleLogin}>
@@ -251,7 +257,7 @@ export function LoginForm() {
       <Pressable
         accessibilityHint="Inicia sesión con tu cuenta de Google."
         accessibilityRole="button"
-        className={`h-14 flex-row items-center justify-center gap-3 rounded-2xl border border-sky bg-white ${
+        className={`h-14 flex-row items-center justify-center gap-3 rounded-2xl border border-sky/70 bg-white ${
           loading || googleLoading ? 'opacity-70' : 'active:bg-canvas'
         }`}
         disabled={loading || googleLoading}
@@ -260,9 +266,7 @@ export function LoginForm() {
           <ActivityIndicator color={COLORS.PETROL} size="small" />
         ) : (
           <>
-            <View className="h-7 w-7 items-center justify-center rounded-full bg-canvas border border-sky/50">
-              <Text className="text-sm font-extrabold text-petrol">G</Text>
-            </View>
+            <GoogleIcon size={20} />
             <Text className="text-sm font-semibold text-petrol">Continuar con Google</Text>
           </>
         )}

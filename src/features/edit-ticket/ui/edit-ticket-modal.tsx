@@ -183,9 +183,14 @@ function EditTicketFormContent({
             </View>
 
             <View>
-              <Text className="mb-2 text-sm font-medium text-petrol">
-                Descripción del problema *
-              </Text>
+              <View className="mb-2 flex-row items-center justify-between">
+                <Text className="text-sm font-medium text-petrol">
+                  Descripción del problema *
+                </Text>
+                <Text className="text-[11px] font-medium text-steel">
+                  {description.length} caracteres (mín. 10)
+                </Text>
+              </View>
               <TextInput
                 className="min-h-[95px] rounded-2xl border border-sky bg-white p-3.5 text-xs text-petrol"
                 editable={!loading}

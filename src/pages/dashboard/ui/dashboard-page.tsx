@@ -7,6 +7,7 @@ import { CheckCircle2, Clock, LogOut, Ticket } from 'lucide-react-native';
 import { useSession } from '@/entities/session';
 import { SignOutConfirmModal } from '@/features/auth';
 import { COLORS } from '@/shared/theme';
+import { AppLogo } from '@/shared/ui/app-logo';
 import { WelcomeModal } from '@/widgets/welcome-modal';
 
 function getContextualGreeting(): string {
@@ -25,22 +26,23 @@ type DashboardPageProps = {
 };
 
 export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {}) {
-  const { user } = useSession();
+  const { user, pendingWelcome, consumeWelcome } = useSession();
   const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
-  const welcomeParam = welcomeProp ?? routeParams.welcome;
+  const isFromPropOrRoute = (welcomeProp ?? routeParams.welcome) === '1';
 
   // Estado para controlar la visibilidad del modal de bienvenida
-  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(welcomeParam === '1');
+  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(false);
   const welcomeHandledRef = useRef(false);
 
-  // Escuchar si useLocalSearchParams se hidrata después del primer render tick
   useEffect(() => {
-    if (welcomeParam === '1' && !welcomeHandledRef.current) {
+    const shouldShow = pendingWelcome || isFromPropOrRoute;
+    if (shouldShow && !welcomeHandledRef.current) {
       welcomeHandledRef.current = true;
+      consumeWelcome();
       setIsWelcomeModalVisible(true);
     }
-  }, [welcomeParam]);
+  }, [pendingWelcome, isFromPropOrRoute, consumeWelcome]);
 
   const greeting = getContextualGreeting();
 
@@ -60,17 +62,7 @@ export function DashboardPage({ welcome: welcomeProp }: DashboardPageProps = {})
         <View className="mx-auto w-full max-w-[440px] flex-1 px-6 pb-8">
           {/* Barra superior */}
           <View className="flex-row items-center justify-between pb-6 pt-3">
-            <View className="flex-row items-center gap-3">
-              <View className="h-11 w-11 items-center justify-center rounded-2xl bg-petrol">
-                <Text className="text-lg font-bold text-white">T</Text>
-              </View>
-              <View>
-                <Text className="text-lg font-bold tracking-tight text-petrol">TickDesk</Text>
-                <Text className="text-[10px] font-semibold tracking-[2px] text-steel">
-                  SUPPORT SYSTEM
-                </Text>
-              </View>
-            </View>
+            <AppLogo />
 
             {/* Píldora de estado alineada a la paleta TickDesk (sin verde no corporativo) */}
             <View className="flex-row items-center gap-2 rounded-full border border-sky/60 bg-white px-3 py-1.5">

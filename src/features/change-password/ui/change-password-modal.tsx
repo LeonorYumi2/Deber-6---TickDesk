@@ -9,9 +9,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Eye, EyeOff, KeyRound, ShieldCheck, X } from 'lucide-react-native';
+import LottieView from 'lottie-react-native';
+import { Eye, EyeOff, KeyRound, X } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
+import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { TextField } from '@/shared/ui/text-field';
@@ -181,8 +183,13 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
 
           {successMessage ? (
             <View className="py-4 items-center">
-              <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl bg-petrol/10">
-                <ShieldCheck color={COLORS.PETROL} size={32} />
+              <View className="mb-2 h-24 w-24 items-center justify-center">
+                <LottieView
+                  autoPlay
+                  loop
+                  source={welcomeBadgeAnimation}
+                  style={{ width: 90, height: 90 }}
+                />
               </View>
               <Text className="text-base font-bold text-petrol text-center">
                 Contraseña modificada
