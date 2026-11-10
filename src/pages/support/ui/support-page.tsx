@@ -1,12 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, Clock, Headphones, LogOut, Ticket } from 'lucide-react-native';
+import {
+  CheckCircle2,
+  Clock,
+  Headphones,
+  Inbox,
+  LogOut,
+  Ticket as TicketIcon,
+  UserCheck,
+} from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
+import { TicketCard, type Ticket } from '@/entities/ticket';
 import { SignOutConfirmModal } from '@/features/auth';
+import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { TicketDetailModal } from '@/widgets/ticket-detail-modal';
 import { WelcomeModal } from '@/widgets/welcome-modal';
 
 function getContextualGreeting(): string {
@@ -26,7 +44,17 @@ type SupportPageProps = {
 
 export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
   const { user, profile } = useSession();
+
+  const [activeTab, setActiveTab] = useState<'queue' | 'assigned'>('queue');
+  const [queueTickets, setQueueTickets] = useState<Ticket[]>([]);
+  const [assignedTickets, setAssignedTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
+
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
   const welcomeParam = welcomeProp ?? routeParams.welcome;
 
@@ -40,16 +68,100 @@ export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
     }
   }, [welcomeParam]);
 
+  const loadTickets = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const [queueRes, assignedRes] = await Promise.all([
+        supabase
+          .from('tickets')
+          .select('*, requester_profile:profiles!user_id(full_name, email)')
+          .eq('status', 'pending')
+          .is('assigned_to', null)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('tickets')
+          .select('*, requester_profile:profiles!user_id(full_name, email)')
+          .eq('assigned_to', user.id)
+          .order('created_at', { ascending: false }),
+      ]);
+
+      if (queueRes.data) {
+        setQueueTickets(queueRes.data as unknown as Ticket[]);
+      }
+      if (assignedRes.data) {
+        setAssignedTickets(assignedRes.data as unknown as Ticket[]);
+      }
+    } catch (err) {
+      console.warn('Excepción al cargar tickets de soporte:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (user?.id) {
+      Promise.all([
+        supabase
+          .from('tickets')
+          .select('*, requester_profile:profiles!user_id(full_name, email)')
+          .eq('status', 'pending')
+          .is('assigned_to', null)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('tickets')
+          .select('*, requester_profile:profiles!user_id(full_name, email)')
+          .eq('assigned_to', user.id)
+          .order('created_at', { ascending: false }),
+      ]).then(([queueRes, assignedRes]) => {
+        if (!isMounted) return;
+        if (queueRes.data) {
+          setQueueTickets(queueRes.data as unknown as Ticket[]);
+        }
+        if (assignedRes.data) {
+          setAssignedTickets(assignedRes.data as unknown as Ticket[]);
+        }
+        setLoading(false);
+      });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadTickets();
+  }, [loadTickets]);
+
   const greeting = getContextualGreeting();
   const displayName = profile?.full_name?.trim() || user?.user_metadata?.full_name?.trim() || user?.email || 'Técnico de soporte';
   const userInitial = displayName.charAt(0).toUpperCase();
+
+  // Contadores
+  const queueCount = queueTickets.length;
+  const myActiveCount = assignedTickets.filter((t) => t.status === 'in_progress').length;
+  const myResolvedCount = assignedTickets.filter((t) => t.status === 'resolved').length;
+
+  // Ticket actualmente activo en atención por este especialista
+  const currentActiveTicket = assignedTickets.find((t) => t.status === 'in_progress');
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" style={{ flex: 1 }}>
       <ScrollView
         className="flex-1"
         contentContainerClassName="flex-grow"
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            colors={[COLORS.PETROL]}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            tintColor={COLORS.PETROL}
+          />
+        }>
         <View className="mx-auto w-full max-w-[440px] flex-1 px-6 pb-8">
           {/* Barra superior */}
           <View className="flex-row items-center justify-between pb-6 pt-3">
@@ -99,55 +211,163 @@ export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
                 Área de trabajo
               </Text>
               <Text className="mt-0.5 text-sm font-semibold text-petrol">
-                Panel de soporte
+                Panel de soporte técnico
               </Text>
             </View>
           </View>
 
+          {/* Banner de ticket activo en atención (si existe) */}
+          {currentActiveTicket ? (
+            <Pressable
+              accessibilityRole="button"
+              className="mt-4 rounded-2xl border border-petrol/40 bg-petrol/5 p-4 active:bg-petrol/10"
+              onPress={() => {
+                setSelectedTicket(currentActiveTicket);
+                setIsDetailModalVisible(true);
+              }}>
+              <View className="flex-row items-center justify-between pb-1.5">
+                <View className="flex-row items-center gap-2">
+                  <View className="h-2 w-2 rounded-full bg-coral animate-pulse" />
+                  <Text className="text-[11px] font-bold tracking-wider text-petrol uppercase">
+                    Tienes 1 ticket activo en atención
+                  </Text>
+                </View>
+                <Text className="text-[10px] font-semibold text-coral">Ver &rarr;</Text>
+              </View>
+              <Text className="text-sm font-bold text-petrol" numberOfLines={1}>
+                {currentActiveTicket.title}
+              </Text>
+            </Pressable>
+          ) : null}
+
           {/* Resumen de tickets de soporte */}
           <View className="mt-6">
             <Text className="mb-3 text-[11px] font-bold tracking-[2px] text-steel">
-              COLA DE ATENCIÓN
+              MÉTRICAS DE ATENCIÓN
             </Text>
 
             <View className="flex-row gap-3">
               <View className="flex-1 rounded-2xl border border-sky/40 bg-white p-4">
                 <View className="mb-2 h-8 w-8 items-center justify-center rounded-xl bg-petrol/10">
-                  <Ticket color={COLORS.PETROL} size={16} />
+                  <TicketIcon color={COLORS.PETROL} size={16} />
                 </View>
-                <Text className="text-2xl font-bold text-petrol">0</Text>
-                <Text className="text-xs text-steel">Cola de tickets</Text>
+                <Text className="text-2xl font-bold text-petrol">{queueCount}</Text>
+                <Text className="text-xs text-steel">En cola</Text>
               </View>
 
               <View className="flex-1 rounded-2xl border border-sky/40 bg-white p-4">
                 <View className="mb-2 h-8 w-8 items-center justify-center rounded-xl bg-coral/10">
                   <Clock color={COLORS.CORAL} size={16} />
                 </View>
-                <Text className="text-2xl font-bold text-petrol">0</Text>
-                <Text className="text-xs text-steel">Asignados a mí</Text>
+                <Text className="text-2xl font-bold text-petrol">{myActiveCount}</Text>
+                <Text className="text-xs text-steel">En proceso</Text>
               </View>
 
               <View className="flex-1 rounded-2xl border border-sky/40 bg-white p-4">
                 <View className="mb-2 h-8 w-8 items-center justify-center rounded-xl bg-sky/30">
                   <CheckCircle2 color={COLORS.STEEL} size={16} />
                 </View>
-                <Text className="text-2xl font-bold text-petrol">0</Text>
-                <Text className="text-xs text-steel">Resueltos hoy</Text>
+                <Text className="text-2xl font-bold text-petrol">{myResolvedCount}</Text>
+                <Text className="text-xs text-steel">Resueltos</Text>
               </View>
             </View>
           </View>
 
-          {/* Nota informativa de Panel de soporte provisional */}
-          <View className="mt-6 rounded-2xl border border-sky/30 bg-sky/15 p-4">
-            <View className="flex-row items-center gap-2">
-              <Headphones color={COLORS.PETROL} size={16} />
-              <Text className="text-xs font-semibold text-petrol">
-                Panel de soporte provisional
+          {/* Pestañas de navegación entre Cola y Asignados */}
+          <View className="mt-7 flex-row rounded-2xl border border-sky/40 bg-white p-1">
+            <Pressable
+              accessibilityRole="tab"
+              className={`flex-1 h-11 flex-row items-center justify-center gap-1.5 rounded-xl ${
+                activeTab === 'queue' ? 'bg-petrol shadow-sm' : 'active:bg-canvas'
+              }`}
+              onPress={() => setActiveTab('queue')}>
+              <Headphones
+                color={activeTab === 'queue' ? '#FFFFFF' : COLORS.STEEL}
+                size={14}
+              />
+              <Text
+                className={`text-xs font-bold ${
+                  activeTab === 'queue' ? 'text-white' : 'text-steel'
+                }`}>
+                Cola de tickets ({queueCount})
               </Text>
-            </View>
-            <Text className="mt-1 text-xs leading-5 text-steel">
-              Desde este espacio podrás gestionar la cola de incidencias, autoasignarte tickets y documentar las soluciones técnicas brindadas.
-            </Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="tab"
+              className={`flex-1 h-11 flex-row items-center justify-center gap-1.5 rounded-xl ${
+                activeTab === 'assigned' ? 'bg-petrol shadow-sm' : 'active:bg-canvas'
+              }`}
+              onPress={() => setActiveTab('assigned')}>
+              <UserCheck
+                color={activeTab === 'assigned' ? '#FFFFFF' : COLORS.STEEL}
+                size={14}
+              />
+              <Text
+                className={`text-xs font-bold ${
+                  activeTab === 'assigned' ? 'text-white' : 'text-steel'
+                }`}>
+                Mis asignados ({assignedTickets.length})
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Listado dinámico según la pestaña activa */}
+          <View className="mt-4">
+            {loading && queueTickets.length === 0 && assignedTickets.length === 0 ? (
+              <View className="py-12 items-center justify-center">
+                <ActivityIndicator color={COLORS.PETROL} size="large" />
+                <Text className="mt-3 text-xs text-steel">Cargando tickets de soporte...</Text>
+              </View>
+            ) : activeTab === 'queue' ? (
+              queueTickets.length === 0 ? (
+                <View className="rounded-3xl border border-sky/40 bg-white p-8 items-center text-center shadow-sm">
+                  <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl bg-canvas">
+                    <Inbox color={COLORS.STEEL} size={28} />
+                  </View>
+                  <Text className="text-base font-bold text-petrol">
+                    La cola de tickets está al día
+                  </Text>
+                  <Text className="mt-1 text-center text-xs leading-5 text-steel max-w-[260px]">
+                    No hay solicitudes pendientes sin asignar en este momento.
+                  </Text>
+                </View>
+              ) : (
+                queueTickets.map((t) => (
+                  <TicketCard
+                    key={t.id}
+                    ticket={t}
+                    onPress={(clicked) => {
+                      setSelectedTicket(clicked);
+                      setIsDetailModalVisible(true);
+                    }}
+                  />
+                ))
+              )
+            ) : assignedTickets.length === 0 ? (
+              <View className="rounded-3xl border border-sky/40 bg-white p-8 items-center text-center shadow-sm">
+                <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl bg-canvas">
+                  <UserCheck color={COLORS.STEEL} size={28} />
+                </View>
+                <Text className="text-base font-bold text-petrol">
+                  Sin tickets asignados
+                </Text>
+                <Text className="mt-1 text-center text-xs leading-5 text-steel max-w-[260px]">
+                  Dirígete a la pestaña de cola para atender un ticket disponible.
+                </Text>
+              </View>
+            ) : (
+              assignedTickets.map((t) => (
+                <TicketCard
+                  key={t.id}
+                  ticket={t}
+                  onPress={(clicked) => {
+                    setSelectedTicket(clicked);
+                    setIsDetailModalVisible(true);
+                  }}
+                />
+              ))
+            )}
           </View>
 
           {/* Botón de cierre de sesión con confirmación */}
@@ -166,6 +386,19 @@ export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal de detalle de ticket (atender, resolver, cambiar prioridad, observaciones) */}
+      <TicketDetailModal
+        ticket={selectedTicket}
+        visible={isDetailModalVisible}
+        onClose={() => {
+          setIsDetailModalVisible(false);
+          setSelectedTicket(null);
+        }}
+        onTicketUpdated={() => {
+          loadTickets();
+        }}
+      />
 
       {/* Modal de confirmación antes de cerrar sesión */}
       <SignOutConfirmModal
