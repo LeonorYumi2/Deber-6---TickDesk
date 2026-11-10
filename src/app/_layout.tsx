@@ -21,7 +21,8 @@ function RootNavigationLayout() {
     if (isLoading) return;
 
     const currentSegment = segments[0] as string | undefined;
-    const isAuthRoute = !currentSegment || currentSegment === 'register';
+    const isAuthRoute =
+      !currentSegment || currentSegment === 'register' || currentSegment === 'google-auth';
 
     // 1. Sin sesión: solo puede acceder a login y registro.
     if (!session) {

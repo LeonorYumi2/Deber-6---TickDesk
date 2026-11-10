@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import {
   Headphones,
+  KeyRound,
   LogOut,
   Search,
   Shield,
@@ -23,6 +24,7 @@ import {
 import { useSession, type Profile, type UserRole } from '@/entities/session';
 import { ChangeRoleModal } from '@/features/admin-change-role';
 import { SignOutConfirmModal } from '@/features/auth';
+import { ChangePasswordModal } from '@/features/change-password';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { WelcomeModal } from '@/widgets/welcome-modal';
@@ -54,6 +56,7 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
   const [selectedUserForRole, setSelectedUserForRole] = useState<Profile | null>(null);
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
   const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
 
   const routeParams = useLocalSearchParams<{ welcome?: string }>();
   const welcomeParam = welcomeProp ?? routeParams.welcome;
@@ -241,13 +244,26 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
               </View>
             </View>
 
-            <View className="mt-4 rounded-xl border border-sky/30 bg-canvas px-3.5 py-2">
-              <Text className="text-[10px] font-bold uppercase tracking-wider text-steel">
-                Área de trabajo
-              </Text>
-              <Text className="mt-0.5 text-sm font-semibold text-petrol">
-                Panel de administración del sistema
-              </Text>
+            <View className="mt-4 flex-row items-center justify-between rounded-xl border border-sky/30 bg-canvas px-3.5 py-2">
+              <View>
+                <Text className="text-[10px] font-bold uppercase tracking-wider text-steel">
+                  Área de trabajo
+                </Text>
+                <Text className="mt-0.5 text-sm font-semibold text-petrol">
+                  Panel de administración del sistema
+                </Text>
+              </View>
+
+              <Pressable
+                accessibilityHint="Abre el modal para cambiar tu contraseña."
+                accessibilityRole="button"
+                className="flex-row items-center gap-1.5 rounded-lg border border-sky/50 bg-white px-2.5 py-1.5 active:bg-canvas"
+                onPress={() => setIsPasswordModalVisible(true)}>
+                <KeyRound color={COLORS.PETROL} size={13} />
+                <Text className="text-[11px] font-semibold text-petrol">
+                  Contraseña
+                </Text>
+              </Pressable>
             </View>
           </View>
 
@@ -408,15 +424,26 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
             )}
           </View>
 
-          {/* Botón de cierre de sesión con confirmación */}
-          <Pressable
-            accessibilityHint="Cierra tu sesión actual y regresa a la pantalla de ingreso."
-            accessibilityRole="button"
-            className="mt-8 h-14 flex-row items-center justify-center gap-3 rounded-2xl border border-coral/30 bg-white active:bg-coral/5"
-            onPress={() => setIsSignOutModalVisible(true)}>
-            <LogOut color={COLORS.CORAL} size={18} />
-            <Text className="text-sm font-semibold text-coral">Cerrar sesión</Text>
-          </Pressable>
+          {/* Botones de gestión de cuenta */}
+          <View className="mt-8 gap-2.5">
+            <Pressable
+              accessibilityHint="Abre la ventana para cambiar tu contraseña."
+              accessibilityRole="button"
+              className="h-12 flex-row items-center justify-center gap-2 rounded-2xl border border-sky/50 bg-white active:bg-canvas"
+              onPress={() => setIsPasswordModalVisible(true)}>
+              <KeyRound color={COLORS.PETROL} size={16} />
+              <Text className="text-xs font-semibold text-petrol">Cambiar contraseña</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityHint="Cierra tu sesión actual y regresa a la pantalla de ingreso."
+              accessibilityRole="button"
+              className="h-12 flex-row items-center justify-center gap-2 rounded-2xl border border-coral/30 bg-white active:bg-coral/5"
+              onPress={() => setIsSignOutModalVisible(true)}>
+              <LogOut color={COLORS.CORAL} size={16} />
+              <Text className="text-xs font-semibold text-coral">Cerrar sesión</Text>
+            </Pressable>
+          </View>
 
           {/* Pie de página */}
           <View className="mt-auto items-center pt-8">
@@ -438,6 +465,12 @@ export function AdminPage({ welcome: welcomeProp }: AdminPageProps = {}) {
             prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
           );
         }}
+      />
+
+      {/* Modal para cambiar contraseña */}
+      <ChangePasswordModal
+        visible={isPasswordModalVisible}
+        onClose={() => setIsPasswordModalVisible(false)}
       />
 
       {/* Modal de confirmación antes de cerrar sesión */}

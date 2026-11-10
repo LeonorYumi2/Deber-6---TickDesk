@@ -169,10 +169,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           console.warn('Alerta de enlace de autenticación:', errorDescription);
         }
 
-        const code =
+        let code =
           typeof parsed.queryParams?.code === 'string'
             ? parsed.queryParams.code
             : undefined;
+
+        if (!code && url.includes('code=')) {
+          const match = url.match(/[?&#]code=([^&#]+)/);
+          if (match) {
+            code = decodeURIComponent(match[1]);
+          }
+        }
 
         if (code && !processedCodes.current.has(code)) {
           processedCodes.current.add(code);
@@ -181,6 +188,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             console.error('Error al intercambiar código por sesión:', error.message);
           } else if (data.session) {
             syncSessionAndProfile(data.session);
+          }
+          return;
+        }
+
+        // Manejo de tokens devueltos en fragmento hash (#access_token=...&refresh_token=...)
+        if (url.includes('access_token') && url.includes('refresh_token')) {
+          const hashOrQuery = url.includes('#') ? url.split('#')[1] : url.split('?')[1];
+          if (hashOrQuery) {
+            const params = new URLSearchParams(hashOrQuery);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            if (accessToken && refreshToken) {
+              const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              if (error) {
+                console.error('Error al establecer sesión desde hash tokens:', error.message);
+              } else if (data.session) {
+                syncSessionAndProfile(data.session);
+              }
+            }
           }
         }
       } catch (err) {
