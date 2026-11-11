@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, Text, View } from 'react-native';
-import { Trash2 } from 'lucide-react-native';
 
 import type { Ticket } from '@/entities/ticket';
+import deleteTrashAnimation from '@/shared/assets/animations/delete-trash.json';
 import { supabase } from '@/shared/lib/supabase';
-import { COLORS } from '@/shared/theme';
+import { LottieState } from '@/shared/ui/lottie-state';
 
 type DeleteTicketModalProps = {
   ticket: Ticket | null;
@@ -72,11 +72,9 @@ export function DeleteTicketModal({
         />
 
         <View className="w-full max-w-[380px] items-center rounded-3xl border border-sky/40 bg-white p-6 shadow-xl">
-          <View className="h-14 w-14 items-center justify-center rounded-2xl bg-coral/10">
-            <Trash2 color={COLORS.CORAL} size={24} />
-          </View>
+          <LottieState size={90} source={deleteTrashAnimation} />
 
-          <Text className="mt-4 text-center text-xl font-bold tracking-tight text-petrol">
+          <Text className="mt-2 text-center text-xl font-bold tracking-tight text-petrol">
             ¿Eliminar ticket?
           </Text>
 

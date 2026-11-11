@@ -10,14 +10,14 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { Ticket as TicketIcon, X } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
 import type { CreateTicketDTO, Ticket, TicketPriority } from '@/entities/ticket';
-import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
+import successCheckAnimation from '@/shared/assets/animations/success-check.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TextField } from '@/shared/ui/text-field';
 
 const SUGGESTED_CATEGORIES = [
@@ -194,14 +194,7 @@ export function CreateTicketModal({
           {isSuccess ? (
             /* Pantalla de confirmación exitosa con Lottie */
             <View className="items-center py-4">
-              <View className="mb-2 h-24 w-24 items-center justify-center">
-                <LottieView
-                  autoPlay
-                  loop
-                  source={welcomeBadgeAnimation}
-                  style={{ width: 90, height: 90 }}
-                />
-              </View>
+              <LottieState className="mb-2" loop={false} size={90} source={successCheckAnimation} />
 
               <Text className="text-center text-xl font-bold tracking-tight text-petrol">
                 ¡Ticket registrado con éxito!

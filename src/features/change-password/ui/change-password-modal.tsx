@@ -9,13 +9,14 @@ import {
   Text,
   View,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { Eye, EyeOff, KeyRound, X } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
-import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
+import lockSecurityAnimation from '@/shared/assets/animations/lock-security.json';
+import successCheckAnimation from '@/shared/assets/animations/success-check.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TextField } from '@/shared/ui/text-field';
 
 type ChangePasswordModalProps = {
@@ -183,14 +184,7 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
 
           {successMessage ? (
             <View className="py-4 items-center">
-              <View className="mb-2 h-24 w-24 items-center justify-center">
-                <LottieView
-                  autoPlay
-                  loop
-                  source={welcomeBadgeAnimation}
-                  style={{ width: 90, height: 90 }}
-                />
-              </View>
+              <LottieState className="mb-2" loop={false} size={90} source={successCheckAnimation} />
               <Text className="text-base font-bold text-petrol text-center">
                 Contraseña modificada
               </Text>
@@ -213,6 +207,9 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}>
               <View className="gap-3.5 pb-2">
+                <View className="items-center py-1">
+                  <LottieState size={90} source={lockSecurityAnimation} />
+                </View>
                 <Text className="text-xs leading-5 text-steel">
                   Para actualizar tu contraseña, confirma tu contraseña actual y define una nueva que tenga al menos 8 caracteres.
                 </Text>

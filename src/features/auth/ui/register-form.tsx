@@ -3,10 +3,13 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import type { AuthError } from '@supabase/supabase-js';
-import { CheckCircle2, Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import errorShakeAnimation from '@/shared/assets/animations/error-shake.json';
+import successCheckAnimation from '@/shared/assets/animations/success-check.json';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TextField } from '@/shared/ui/text-field';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -121,15 +124,13 @@ export function RegisterForm() {
 
   if (successMessage) {
     return (
-      <View className="rounded-2xl border border-sky bg-white p-6">
-        <View className="mb-3 h-10 w-10 items-center justify-center rounded-xl bg-petrol/10">
-          <CheckCircle2 color={COLORS.PETROL} size={22} />
-        </View>
-        <Text className="text-lg font-bold text-petrol">Registro exitoso</Text>
-        <Text className="mt-2 text-sm leading-6 text-steel">{successMessage}</Text>
+      <View className="items-center rounded-2xl border border-sky bg-white p-6">
+        <LottieState className="mb-2" loop={false} size={90} source={successCheckAnimation} />
+        <Text className="text-center text-lg font-bold text-petrol">Registro exitoso</Text>
+        <Text className="mt-2 text-center text-sm leading-6 text-steel">{successMessage}</Text>
         <Pressable
           accessibilityRole="button"
-          className="mt-6 h-14 items-center justify-center rounded-2xl bg-petrol active:opacity-90"
+          className="mt-6 h-14 w-full items-center justify-center rounded-2xl bg-petrol active:opacity-90"
           onPress={() => router.replace('/')}>
           <Text className="text-sm font-semibold text-white">Ir al inicio de sesión</Text>
         </Pressable>
@@ -227,8 +228,9 @@ export function RegisterForm() {
       </View>
 
       {errorMessage ? (
-        <View className="mt-4 rounded-xl border border-coral/30 bg-coral/10 p-3">
-          <Text className="text-xs font-medium text-coral">{errorMessage}</Text>
+        <View className="mt-4 items-center rounded-xl border border-coral/30 bg-coral/10 p-3">
+          <LottieState className="mb-1" size={40} source={errorShakeAnimation} />
+          <Text className="text-center text-xs font-medium text-coral">{errorMessage}</Text>
         </View>
       ) : null}
 

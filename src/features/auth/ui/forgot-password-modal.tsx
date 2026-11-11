@@ -9,12 +9,12 @@ import {
   View,
 } from 'react-native';
 import { X } from 'lucide-react-native';
-import LottieView from 'lottie-react-native';
 
-import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
+import emailSentAnimation from '@/shared/assets/animations/email-sent.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { AppLogo } from '@/shared/ui/app-logo';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TextField } from '@/shared/ui/text-field';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -102,14 +102,7 @@ export function ForgotPasswordModal({
         <View className="w-full max-w-[420px] rounded-3xl border border-sky/40 bg-white p-6 shadow-lg">
           {isSuccess ? (
             <View className="items-center py-2">
-              <View className="mb-2 h-20 w-20 items-center justify-center">
-                <LottieView
-                  autoPlay
-                  loop
-                  source={welcomeBadgeAnimation}
-                  style={{ width: 80, height: 80 }}
-                />
-              </View>
+              <LottieState className="mb-2" size={100} source={emailSentAnimation} />
 
               <Text className="text-[11px] font-bold tracking-[2px] text-steel">
                 ENLACE ENVIADO

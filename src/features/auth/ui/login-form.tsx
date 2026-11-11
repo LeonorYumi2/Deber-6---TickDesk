@@ -9,7 +9,10 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { supabase } from '@/shared/lib/supabase';
 import { useSession, type UserRole } from '@/entities/session';
 import { COLORS } from '@/shared/theme';
+import errorShakeAnimation from '@/shared/assets/animations/error-shake.json';
+import loadingAnimation from '@/shared/assets/animations/loading.json';
 import { GoogleIcon } from '@/shared/ui/google-icon';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TextField } from '@/shared/ui/text-field';
 import { ForgotPasswordModal } from './forgot-password-modal';
 
@@ -228,7 +231,8 @@ export function LoginForm() {
       </View>
 
       {errorMessage ? (
-        <View className="mt-4 rounded-xl border border-coral/30 bg-coral/10 p-3">
+        <View className="mt-4 items-center rounded-xl border border-coral/30 bg-coral/10 p-3">
+          <LottieState className="mb-1" size={40} source={errorShakeAnimation} />
           <Text className="text-center text-xs font-medium text-coral">{errorMessage}</Text>
         </View>
       ) : null}
@@ -263,7 +267,7 @@ export function LoginForm() {
         disabled={loading || googleLoading}
         onPress={handleGoogleLogin}>
         {googleLoading ? (
-          <ActivityIndicator color={COLORS.PETROL} size="small" />
+          <LottieState size={24} source={loadingAnimation} />
         ) : (
           <>
             <GoogleIcon size={20} />
