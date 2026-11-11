@@ -1,50 +1,47 @@
-import { Card } from '@/shared/ui/card/card';
-import { Button } from '@/shared/ui/button/button';
-import { env } from '@/shared/config/env';
+import { Card } from '@/shared/ui/card';
+import { AppActions } from '@/shared/ui/app-actions';
 
 export function HomePage() {
-  const handleOpenApp = () => {
-    window.location.href = env.appScheme;
-  };
-
   return (
-    <main style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Card>
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            color: 'var(--color-steel)',
-            letterSpacing: '2px',
-            display: 'block',
-            marginBottom: '8px',
-          }}>
-          PORTAL DE AUTENTICACIÓN
-        </span>
-        <h2
-          style={{
-            fontSize: '28px',
-            fontWeight: 700,
-            color: 'var(--color-petrol)',
-            lineHeight: 1.25,
-            marginBottom: '12px',
-          }}>
-          TickDesk Web
-        </h2>
-        <p
-          style={{
-            fontSize: '14px',
-            lineHeight: 1.6,
-            color: 'var(--color-steel)',
-            marginBottom: '28px',
-          }}>
-          Este portal complementario gestiona los servicios de verificación de correo electrónico
-          y recuperación de contraseñas de la aplicación móvil TickDesk.
-        </p>
+    <main
+      style={{
+        padding: '0 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
+      <Card maxWidth="460px">
+        <div style={{ textAlign: 'center', padding: '6px 0 2px' }}>
+          <h2
+            style={{
+              margin: '0 0 12px 0',
+              fontSize: 'var(--font-2xl)',
+              fontWeight: 700,
+              color: 'var(--color-petrol)',
+              letterSpacing: '-0.4px',
+              lineHeight: 1.25,
+            }}
+          >
+            Portal Web TickDesk
+          </h2>
 
-        <Button onClick={handleOpenApp}>
-          Abrir aplicación TickDesk
-        </Button>
+          <p
+            style={{
+              margin: '0 0 24px 0',
+              fontSize: 'var(--font-sm)',
+              lineHeight: 1.6,
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            Este portal gestiona de forma segura la verificación de cuentas y el restablecimiento de contraseñas para la aplicación móvil TickDesk.
+          </p>
+
+          <AppActions
+            helperText="Para crear y gestionar tickets de soporte técnico, abre la aplicación en tu dispositivo Android."
+          />
+        </div>
       </Card>
     </main>
   );

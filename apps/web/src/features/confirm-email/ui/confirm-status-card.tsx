@@ -1,102 +1,106 @@
-import { Card } from '@/shared/ui/card/card';
-import { Button } from '@/shared/ui/button/button';
-import { env } from '@/shared/config/env';
+import { CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Card } from '@/shared/ui/card';
+import { AppActions } from '@/shared/ui/app-actions';
 import { useConfirmEmail } from '../model/use-confirm-email';
 
 export function ConfirmStatusCard() {
   const { status, message } = useConfirmEmail();
 
-  const handleOpenApp = () => {
-    window.location.href = env.appScheme;
-  };
-
   if (status === 'loading') {
     return (
-      <Card>
-        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+      <Card maxWidth="420px">
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '16px 0 8px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
           <div
             style={{
-              width: '48px',
-              height: '48px',
-              border: '4px solid var(--color-sky)',
+              width: '40px',
+              height: '40px',
+              border: '3px solid rgba(184, 221, 227, 0.4)',
               borderTopColor: 'var(--color-petrol)',
               borderRadius: '50%',
-              margin: '0 auto 20px',
-              animation: 'spin 1s linear infinite',
+              margin: '0 auto 18px',
+              animation: 'spin 0.8s linear infinite',
             }}
           />
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-petrol)', marginBottom: '8px' }}>
+
+          <h2
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: 'var(--font-xl)',
+              fontWeight: 700,
+              color: 'var(--color-petrol)',
+              lineHeight: 1.25,
+            }}
+          >
             Verificando cuenta
           </h2>
-          <p style={{ fontSize: '14px', color: 'var(--color-steel)' }}>
-            Por favor, espera unos momentos mientras confirmamos tu correo con Supabase...
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: 'var(--font-sm)',
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.5,
+            }}
+          >
+            Por favor, espera un momento mientras validamos tu enlace...
           </p>
         </div>
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </Card>
     );
   }
 
   if (status === 'success') {
     return (
-      <Card>
-        <div style={{ textAlign: 'center' }}>
+      <Card maxWidth="420px">
+        <div style={{ textAlign: 'center', padding: '6px 0 2px' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(36, 78, 101, 0.1)',
+              backgroundColor: 'rgba(36, 78, 101, 0.08)',
               color: 'var(--color-petrol)',
-              fontSize: '28px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
-            }}>
-            ✓
+            }}
+          >
+            <CheckCircle2 size={28} strokeWidth={2.4} />
           </div>
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: 'var(--color-steel)',
-              letterSpacing: '2px',
-              display: 'block',
-              marginBottom: '6px',
-            }}>
-            CONFIRMACIÓN COMPLETADA
-          </span>
+
           <h2
             style={{
-              fontSize: '24px',
+              margin: '0 0 10px 0',
+              fontSize: 'var(--font-xl)',
               fontWeight: 700,
               color: 'var(--color-petrol)',
-              marginBottom: '10px',
-            }}>
+              letterSpacing: '-0.3px',
+            }}
+          >
             ¡Correo verificado!
           </h2>
+
           <p
             style={{
-              fontSize: '14px',
-              lineHeight: 1.6,
-              color: 'var(--color-steel)',
-              marginBottom: '28px',
-            }}>
-            {message} Ya puedes regresar a TickDesk en tu dispositivo móvil e iniciar sesión.
+              margin: '0 0 20px 0',
+              fontSize: 'var(--font-sm)',
+              lineHeight: 1.5,
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            {message || 'Tu cuenta ha sido activada con éxito.'} Ya puedes iniciar sesión en TickDesk.
           </p>
 
-          <Button onClick={handleOpenApp}>
-            Abrir TickDesk en tu celular
-          </Button>
-
-          <p style={{ marginTop: '16px', fontSize: '11px', color: 'var(--color-steel)', lineHeight: 1.4 }}>
-            * Si usas la versión instalada (APK), el botón abrirá la app directamente. Si pruebas en Expo Go, puedes regresar a la aplicación abierta en tu emulador o dispositivo.
-          </p>
+          <AppActions />
         </div>
       </Card>
     );
@@ -104,112 +108,95 @@ export function ConfirmStatusCard() {
 
   if (status === 'expired') {
     return (
-      <Card>
-        <div style={{ textAlign: 'center' }}>
+      <Card maxWidth="420px">
+        <div style={{ textAlign: 'center', padding: '6px 0 2px' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(242, 140, 91, 0.15)',
+              backgroundColor: 'rgba(242, 140, 91, 0.1)',
               color: 'var(--color-coral)',
-              fontSize: '26px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
-            }}>
-            ⏳
+            }}
+          >
+            <Clock size={28} strokeWidth={2.2} />
           </div>
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: 'var(--color-coral)',
-              letterSpacing: '2px',
-              display: 'block',
-              marginBottom: '6px',
-            }}>
-            ENLACE NO VÁLIDO
-          </span>
+
           <h2
             style={{
-              fontSize: '22px',
+              margin: '0 0 10px 0',
+              fontSize: 'var(--font-xl)',
               fontWeight: 700,
               color: 'var(--color-petrol)',
-              marginBottom: '10px',
-            }}>
-            Enlace caducado o utilizado
+            }}
+          >
+            Enlace caducado
           </h2>
+
           <p
             style={{
-              fontSize: '14px',
-              lineHeight: 1.6,
-              color: 'var(--color-steel)',
-              marginBottom: '24px',
-            }}>
-            {message} Es probable que tu correo ya haya sido confirmado previamente o que el enlace haya expirado por seguridad.
+              margin: '0 0 20px 0',
+              fontSize: 'var(--font-sm)',
+              lineHeight: 1.5,
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            {message || 'Este enlace ya fue utilizado o ha expirado.'} Si tu cuenta ya fue confirmada, puedes iniciar sesión directamente.
           </p>
 
-          <Button onClick={handleOpenApp} variant="petrol">
-            Ir a iniciar sesión en TickDesk
-          </Button>
+          <AppActions />
         </div>
       </Card>
     );
   }
 
+  // Error state
   return (
-    <Card>
-      <div style={{ textAlign: 'center' }}>
+    <Card maxWidth="420px">
+      <div style={{ textAlign: 'center', padding: '6px 0 2px' }}>
         <div
           style={{
-            width: '56px',
-            height: '56px',
+            width: '52px',
+            height: '52px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(242, 140, 91, 0.15)',
+            backgroundColor: 'rgba(242, 140, 91, 0.1)',
             color: 'var(--color-coral)',
-            fontSize: '26px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 16px',
-          }}>
-          ✕
+          }}
+        >
+          <AlertTriangle size={28} strokeWidth={2.2} />
         </div>
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            color: 'var(--color-coral)',
-            letterSpacing: '2px',
-            display: 'block',
-            marginBottom: '6px',
-          }}>
-          ERROR DE VERIFICACIÓN
-        </span>
+
         <h2
           style={{
-            fontSize: '22px',
+            margin: '0 0 10px 0',
+            fontSize: 'var(--font-xl)',
             fontWeight: 700,
             color: 'var(--color-petrol)',
-            marginBottom: '10px',
-          }}>
-          No pudimos verificar tu correo
+          }}
+        >
+          Error de verificación
         </h2>
+
         <p
           style={{
-            fontSize: '14px',
-            lineHeight: 1.6,
-            color: 'var(--color-steel)',
-            marginBottom: '24px',
-          }}>
-          {message}
+            margin: '0 0 20px 0',
+            fontSize: 'var(--font-sm)',
+            lineHeight: 1.5,
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          {message || 'No fue posible validar el enlace de confirmación.'}
         </p>
 
-        <Button onClick={handleOpenApp} variant="outline">
-          Volver a la aplicación
-        </Button>
+        <AppActions />
       </div>
     </Card>
   );
