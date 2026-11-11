@@ -1,4 +1,4 @@
-# TickDesk 🎫
+# TickDesk 
 
 **Sistema móvil de gestión de tickets de soporte técnico**
 
@@ -6,7 +6,7 @@ TickDesk es una aplicación móvil desarrollada con React Native y Expo que perm
 
 El proyecto fue desarrollado como parte de la formación académica en la Escuela Politécnica Nacional.
 
-## ✨ Características principales
+##  Características principales
 
 ### Autenticación
 
@@ -44,7 +44,7 @@ El proyecto fue desarrollado como parte de la formación académica en la Escuel
 - **Lottie:** animaciones de la aplicación.
 - **Lucide React Native:** iconografía.
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 El proyecto utiliza **Feature-Sliced Design (FSD)** para organizar el código en módulos y capas, facilitando su mantenimiento, reutilización y escalabilidad.
 
@@ -70,7 +70,7 @@ TickDesk/
 └── README.md
 ```
 
-## ⚙️ Requisitos previos
+##  Requisitos previos
 
 Antes de ejecutar el proyecto, necesitas:
 
@@ -80,7 +80,7 @@ Antes de ejecutar el proyecto, necesitas:
 - Un emulador Android o dispositivo físico.
 - Una cuenta y un proyecto configurado en Supabase.
 
-## 🚀 Instalación
+##  Instalación
 
 1. Clonar el repositorio:
 
@@ -122,7 +122,7 @@ También puedes iniciar Metro con:
 npx expo start
 ```
 
-## 🔐 Configuración de Supabase
+##  Configuración de Supabase
 
 TickDesk utiliza Supabase para gestionar la autenticación y almacenar la información de los tickets y perfiles de usuario.
 
@@ -134,7 +134,7 @@ Para ejecutar todas las funcionalidades es necesario configurar correctamente:
 - Funciones RPC utilizadas por la aplicación.
 - Configuración de autenticación con Google.
 
-## 🌐 Aplicación web complementaria
+##  Aplicación web complementaria
 
 TickDesk también cuenta con una aplicación web complementaria para gestionar los enlaces de autenticación y recuperación de contraseña.
 
