@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import LottieView from 'lottie-react-native';
 import {
   CheckCircle2,
   Clock,
@@ -20,10 +19,11 @@ import {
 
 import { useSession } from '@/entities/session';
 import { TicketCard, type Ticket } from '@/entities/ticket';
-import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
+import emptyBoxAnimation from '@/shared/assets/animations/empty-box.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { AppLogo } from '@/shared/ui/app-logo';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { AppMenu, AppMenuButton } from '@/widgets/app-menu';
 import { TicketDetailModal } from '@/widgets/ticket-detail-modal';
 import { WelcomeModal } from '@/widgets/welcome-modal';
@@ -317,14 +317,7 @@ export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
             ) : activeTab === 'queue' ? (
               queueTickets.length === 0 ? (
                 <View className="rounded-3xl border border-sky/40 bg-white p-7 items-center text-center shadow-sm">
-                  <View className="mb-2 h-24 w-24 items-center justify-center">
-                    <LottieView
-                      autoPlay
-                      loop
-                      source={welcomeBadgeAnimation}
-                      style={{ width: 90, height: 90 }}
-                    />
-                  </View>
+                  <LottieState className="mb-2" size={140} source={emptyBoxAnimation} />
                   <Text className="text-base font-bold text-petrol">
                     La cola de tickets está al día
                   </Text>
@@ -346,14 +339,7 @@ export function SupportPage({ welcome: welcomeProp }: SupportPageProps = {}) {
               )
             ) : assignedTickets.length === 0 ? (
               <View className="rounded-3xl border border-sky/40 bg-white p-7 items-center text-center shadow-sm">
-                <View className="mb-2 h-24 w-24 items-center justify-center">
-                  <LottieView
-                    autoPlay
-                    loop
-                    source={welcomeBadgeAnimation}
-                    style={{ width: 90, height: 90 }}
-                  />
-                </View>
+                <LottieState className="mb-2" size={140} source={emptyBoxAnimation} />
                 <Text className="text-base font-bold text-petrol">
                   Sin tickets asignados
                 </Text>
