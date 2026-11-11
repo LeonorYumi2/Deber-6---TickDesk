@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import { AlertCircle } from 'lucide-react-native';
 
 import { useSession } from '@/entities/session';
+import loadingAnimation from '@/shared/assets/animations/loading.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { LottieState } from '@/shared/ui/lottie-state';
 
 export default function GoogleAuthCallbackScreen() {
   const router = useRouter();
@@ -126,7 +128,7 @@ export default function GoogleAuthCallbackScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-canvas px-6">
       <StatusBar style="dark" />
-      <ActivityIndicator color={COLORS.PETROL} size="large" />
+      <LottieState size={100} source={loadingAnimation} />
       <Text className="mt-4 text-base font-bold text-petrol">
         Completando inicio de sesión...
       </Text>

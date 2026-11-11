@@ -20,11 +20,13 @@ import {
 import { useSession } from '@/entities/session';
 import { TicketCard, type Ticket } from '@/entities/ticket';
 import { CreateTicketModal } from '@/features/create-ticket';
+import emptyBoxAnimation from '@/shared/assets/animations/empty-box.json';
 import welcomeBadgeAnimation from '@/shared/assets/animations/welcome-badge.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
 import { AppLogo } from '@/shared/ui/app-logo';
 import { AppMenu, AppMenuButton } from '@/widgets/app-menu';
+import { LottieState } from '@/shared/ui/lottie-state';
 import { TicketDetailModal } from '@/widgets/ticket-detail-modal';
 import { WelcomeModal } from '@/widgets/welcome-modal';
 
@@ -332,6 +334,7 @@ export function RequesterPage({ welcome: welcomeProp }: RequesterPageProps = {})
               </View>
             ) : filteredTickets.length === 0 ? (
               <View className="rounded-2xl border border-sky/30 bg-white p-6 items-center">
+                <LottieState className="mb-2" size={140} source={emptyBoxAnimation} />
                 <Text className="text-xs text-steel">
                   No hay tickets que coincidan con el filtro seleccionado.
                 </Text>

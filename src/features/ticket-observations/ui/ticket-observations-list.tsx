@@ -17,8 +17,10 @@ import {
 
 import { useSession } from '@/entities/session';
 import type { Ticket, TicketObservation } from '@/entities/ticket';
+import emptyBoxAnimation from '@/shared/assets/animations/empty-box.json';
 import { supabase } from '@/shared/lib/supabase';
 import { COLORS } from '@/shared/theme';
+import { LottieState } from '@/shared/ui/lottie-state';
 
 type TicketObservationsListProps = {
   ticketId?: string;
@@ -199,6 +201,7 @@ export function TicketObservationsList({
         </View>
       ) : observations.length === 0 ? (
         <View className="rounded-2xl border border-sky/30 bg-canvas p-4 text-center items-center">
+          <LottieState className="mb-2" size={140} source={emptyBoxAnimation} />
           <Text className="text-xs text-steel">
             Aún no hay observaciones registradas en este ticket.
           </Text>
